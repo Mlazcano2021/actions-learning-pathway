@@ -30,7 +30,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
       - run: npm install
       - name: Download build output
-        uses: actions/build-test-deploy/download-artifact@v4
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: build/
