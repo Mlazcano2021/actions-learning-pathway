@@ -10,18 +10,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
       - run: npm install
-      - run: npm run build 
-      - name: Upload build output
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: build/
+      - run: npm run build
 
   test:
     needs: build
