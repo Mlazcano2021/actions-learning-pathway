@@ -12,6 +12,11 @@ jobs:
           node-version: '18.x'
       - run: npm install
       - run: npm run build
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build/
 
   test:
     needs: build
