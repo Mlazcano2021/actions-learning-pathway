@@ -10,9 +10,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
       - run: npm install
       - run: npm run build 
-  test: 
+      - name: Upload build output
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build/
+
+  test:
     needs: build
     runs-on: ubuntu-latest
     steps: 
@@ -22,5 +33,86 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
       - run: npm install
+      - name: Download build output
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build/
       - run: npm test
+4. Summary
+Reduce duplicated steps by using caching and sharing artifacts.
+This improves maintainability, performance, and aligns with best practices for GitHub Actions workflows for Node.js projects.
+Mlazcano2021/actions-learning-pathway
+puedes corregir el codigo
+¡Claro! Aquí tienes una versión mejorada y corregida del bloque de workflow en .github/workflows/build-test-deploy.yml para que siga buenas prácticas y evite duplicidad en los pasos:
+
+YAML
+name: Build, Test and Deploy
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build/
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Download build
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build/
+
+      - name: Run tests
+        run: npm test
